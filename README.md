@@ -1,5 +1,10 @@
 # r2v
 
+TODO:
+Improve naming in documentation
+Make everything useMemo
+Use `type-fest`.`merge` for `null` overrides 
+
 ## Vue for React
 
 r2v is a Vue-like state management solution for React.
@@ -284,9 +289,9 @@ The same rule about state state holds with Materialization state: you must ONLY 
 
 If you want to "push" values from an View into something else as they update, you can use `Reaction` to do so.
 
-Every time any value referenced in a `Reaction` updates, `Reaction` will rerun.
+`Reaction`s run immediately when reacted, and then every time any value referenced in a `Reaction` updates, `Reaction` will rerun.
 
-Your `Reaction` definition may return a function, if you wish. This function will be called immediatley after the `Reaction` completes, and any `state` values referenced by this function will not trigger `Reaction` re-runs when they change.
+Your `Reaction` definition may return a function, if you wish. This function will be called immediately after the `Reaction` completes, and any `state` values referenced by this function will not trigger `Reaction` re-runs when they change.
 
 Creating a `Reaction` returns a `stop()` function, which can be called to stop the Reaction from running.
 

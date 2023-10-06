@@ -91,8 +91,7 @@ test("setters are not generated for custom setters", () => {
       myObs.a = v * 2;
     },
   });
-  // @ts-expect-error
-  expect(myObs.setSetA).toBeUndefined();
+  expect((myObs as any).setSetA).toBeUndefined();
 });
 
 test("runInAction", () => {
@@ -171,4 +170,28 @@ test("box pattern", () => {
   expect(state.z()).toEqual(123);
   state.setZ(321);
   expect(state.z()).toEqual(321);
+});
+
+test("nested field updates", () => {
+  const state = State({
+    a: {
+      b: 1,
+      c: 2,
+    },
+  });
+  let bRan = 0;
+  let cRan = 0;
+  Reaction(() => {
+    state.a.b;
+    bRan++;
+  });
+  Reaction(() => {
+    state.a.c;
+    cRan++;
+  });
+  actionRunner.runInAction(() => {
+    state.a.b++;
+  });
+  expect(bRan).toBe(2);
+  expect(cRan).toBe(1);
 });
