@@ -1,9 +1,7 @@
 # r2v
 
 TODO:
-Improve naming in documentation
 Make everything useMemo
-Use `type-fest`.`merge` for `null` overrides 
 
 ## Vue for React
 
@@ -21,67 +19,47 @@ import { createStore, createView } from 'r2v'
 // the store, CountDisplay, IncrementButton, and Counter are all free to be moved to e.g., different files
 const store = createStore({
   count: 0,
-})
-const IncrementButton = createView(() => (
-  <button onClick={() => store.setCount(store.count + 1)}>increment</button>
-))
-const CountDisplay = createView(() => (
-  <div className="myFancyClassName">{store.count}</div>
-))
-const Counter = createView(() => (
-  <div>
-    <CountDisplay />
-    <IncrementButton />
-  </div>
-))
-```
 
-The above could also be written like this:
-
-```tsx
-const store = createStore({
-  count: 0,
-  increment() {
-    store.setCount(store.count + 1)
-  },
-})
-const IncrementButton = createView(() => (
-  <button onClick={store.increment}>increment</button>
-))
-```
-
-Or even like this:
-
-```tsx
-const store = createStore({
-  count: 0,
-  increment() {
+  // these do the same thing
+  incrementV1() {
     store.count++
   },
+  incrementV2() {
+    store.setCount(store.count + 1) // the `setCount` method is generated automatically, and is type-safe
+  },
 })
-const IncrementButton = createView(() => (
-  <button onClick={store.increment}>increment</button>
-))
+const IncrementButton = createView(() => {
+  
+  return (
+    
+    <button onClick={() => {
+      // these all do the same thing
+      store.setCount(store.count + 1) // the `setCount` method is generated automatically, and is type-safe
+      store.incrementV1()
+      store.incrementV2()
+      store.count++
+    }}>count is {store.count}. click to increment by 4</button>
+  )
+})
 ```
 
-The important part is that all store updates happen inside methods on the store object. If you try to update store outside of a method, like this:
+The important part is that you pull values when from within the component. This won't work:
 
 ```tsx
 const store = createStore({
   count: 0,
 })
+let storeCount = store.count;
 const IncrementButton = createView(() => (
   <button onClick={() => storecount++}>increment</button>
 ))
 ```
 
-...r2v will throw an error. This is to ensure that all store object mutations are encapsulated in methods. (This makes logging really nice, explained in the logging section, below.)
-
 ## Core API
 
 ### createView
 
-A React function component wrapped in `createView()` will update whenever any `createStore` field (or subfield) it references *while rendering* updates. (So remember: fields referenced in effects or callbacks will not trigger updates.)
+A React function component wrapped in `createView()` will update whenever any store field (or subfield) it references *while rendering* updates. (So remember: fields referenced in effects or callbacks will not trigger updates.)
 
 It is highly recommended that you wrap all of your applications' custom components in `createView`, including the root component. Wrapping the root component will ensure that the UI always updates when store changes, even if you forget to wrap your other components in `createView`. However, performance will be better if you wrap each custom component in `createView` -- if you don't, they will rerender when their nearest parent `createView` component updates, which is less efficient.
 
@@ -131,37 +109,41 @@ export const UserTable = createView(() => (
 ))
 ```
 
-createStore is logged in Redux devtools if it's installed. If you want your store objects to have names in Redux devtools so you can uniquely identify them, you can provide a `name` argument in your store definition, like so:
-
-```tsx
-const store = store('counterStore', {
-  count: 0,
-  increment() {
-    store.setCount(store.count + 1)
-  },
-})
-export const counterStore = store
-```
-
 #### Methods
 
-Functions included in store definitions are automatically transformed into `Method`s. Setter `Method`s are also automatically generated for any field on a store object that are 
+Functions included in store definitions can be used as store methods.
 
-`Method`s have 3 defining features:
+Setter methods are automatically generated for all root-level fields on an object that aren't functions themselves.
 
-1. They are the ONLY way to modify store
-2. They are ONLY allowed to modify store synchronously
-3. They also provide the functionality of `createMaterialization` functions (described below)
+It's recommended to use methods as much as possible to mutate stores. The main reason is that mutations that occur during method execution are synchronously batched, as illustrated here:
 
-Every time you call an `Method` that updates store, r2v triggers rerenders on all `createView`s that reference any updated fields/subfields.
+```ts
+const store = createStore({
+  count: 0,
+  incrementTwice() {
+    store.count++
+    store.count++
+  },
+  async incrementAsynchronouslySoBatchingDoesNotWork() {
+    await new Promise(r => setTimeout(r), 1000)
+    store.count++
+    store.count++
+  },
+})
 
-`Method`s are free to read from and modify store on any store object.
+const Counter = createView(() => <div>{store.count}</div>)
 
-One important thing to note: `Method`s may call other `Method`s, and `createStore`s will not update until the outermost `Method` has finished being (synchronously) executed. So: this will cause 2 renders: `myObs.setFirstName('Ethan'); myObs.setLastName('Clark');`, but this will only cause 1 render (even though it calls two other `Method`s): `myObs.setNames(first: string, last: string) { store.setFirstName(first); store.setLastName(last) }`
+// these calls will cause Counter to rerender twice
+store.count++
+store.count++
+
+// this call will only cause Counter to rerender once because mutation is occurring via a store method
+store.incrementTwice();
+```
 
 #### Advanced trick: "box"-ing
 
-Although data that lives in store should behave like normal JavaScript objects, `r2v` does crazy stuff to it (like wrapping all fields in `Proxy`s, recursively). If you're optimizing performance and want to "box" an object to prevent it from being transformed into "smart" store (for the sake of performance or any othe reason), you can "box" data by wrapping it in a function, like this:
+Although data that lives in store should behave like normal JavaScript objects, `r2v` does crazy stuff to it (like wrapping all fields in `Proxy`s, recursively). If you're optimizing performance and want to "box" an object to prevent it from being transformed into "smart" state (for the sake of performance or any other reason), you can "box" data by wrapping it in a function, like this:
 
 ```tsx
 const store = createStore({
@@ -174,15 +156,15 @@ const store = createStore({
   },
 })
 ```
-Here, `createView`s and `createReactions` will update when the giant object is set to a new value, but won't update to changes on subfields of the giant object.
+Here, views and reactions will update when the giant object is set to a new value, but won't update to changes on subfields of the giant object.
 
-Note: if you change the value of a function like this example, any non-original function will behave like a normal function -- not a r2v `Method`. This meants it will not be allowed to update `createStore` fields, and it will not function as a `createMaterialization` (described below).
+Note: if you change the value of a function like this example, any mutation done to any store by the non-original function will not be batched like normal store methods do, and it will not function as a materialized field (described below).
 
 #### Setter methods
 
-r2v auto-generates setter `Method`s for you. They are automatically generated for all non-function fields. So, if you define `const myObs = createView('myViewName', { abc: 123 })`, `myObs.setAbc` will be automatically defined and always-available.
+As previously mentioned, r2v auto-generates setter methods for you. They are automatically generated for all non-function fields. So, if you define `const myStore = createStore({ abc: 123 })`, `myStore.setAbc` will be automatically defined and always-available.
 
-If you define your own setter `Method` for a field, r2v will respect the `Method` you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
+If you define your own setter method for a field, r2v will respect the method you define, and will not override it. If for some reason you want to prevent a setter from being generated, define it as `null`, like so:
 
 ```tsx
 const store = createStore({
@@ -191,7 +173,7 @@ const store = createStore({
 })
 ```
 
-If you define the setter as `null`, r2v will leave it as such. Doing so will also set the type of `setX` to `null & Function`, which means that TypeScript will yell at you if you try to use it, as that value doesn't make sense from a type perspective.
+Doing so will cause r2v to leave it alone. The type of the field will also be `null`.
 
 #### IMPORTANT
 
@@ -203,7 +185,7 @@ const clickCounts = createStore({
   clicks: 0
 })
 const ClickCounter = createView(() => (
-  <div onClick={() => myObs.setClicks(myObs.clicks + 1)}>{myObs.clicks}</div>
+  <div onClick={() => clickCounts.setClicks(clickCounts.clicks + 1)}>{clickCounts.clicks}</div>
 ))
 ```
 
@@ -222,7 +204,7 @@ const ClickCounter = createView(() => (
 
 ### createMaterialization
 
-`Method`s function as `createMaterialization` functions when used as such. `createMaterialization` functions cache createMaterialization store, allowing you to avoid expensive recalculations. They work like this:
+Store methods function as materializations when they are called during the render of React components. This means they automatically do fancy caching; they won't re-run unless either parameters passed to them change, or a store value they reference changes. Here's an example:
 
 ```tsx
 const store = createStore({
@@ -240,18 +222,15 @@ const store = createStore({
     return store.users.find(u => u.id === id) || null
   }
 })
-export const userStore = store
-```
 
-`createMaterialization` function results behave the same as `store` store fields, so this component will always display the `user`'s latest field values, even after those values change:
-
-```tsx
-// the logic inside the definition passed to `createMaterialization` above will only execute once in the rendering of this,
-// and will only execute once when either `userId` changes or that user's `fullName` or `id` changes.
+// This component will always display the `user`'s latest field values,
+// but caching will ensure it is still very efficient.
+// In this case, it references `userStore.user(userId)` twice,
+// but the calculations that return the correct value are only run once due to caching.
 const User = createView(() => (<div>User ${userStore.user(userId).fullName} (id: ${userStore.user(userId).id})</div>))
 ```
 
-`createMaterialization` functions are free to reference both obervable store and other `createMaterialization` function store, like so:
+You can create materializations outside of stores with `createMaterialization`. Materializations (and store methods) are free to reference both stores and other materializations, like so:
 ```tsx
 import { createStore, createMaterialization } from 'r2v'
 
@@ -273,9 +252,9 @@ const activeUser = createMaterialization((id: string) => activeUsersStore.active
 
 #### IMPORTANT
 
-Do not use `try/catch` within a `createMaterialization` function. Errors here can break `Views` and `createReaction`s.
+Do not use `try/catch` within store methods or materializations. Errors here can break views and reactions.
 
-For this reason, TypeScript's "strict" mode is highly encouraged.
+(For this reason, TypeScript's "strict" mode is highly encouraged.)
 
 #### IMPORTANT
 
@@ -283,22 +262,18 @@ The same rule about store store holds with createMaterialization store: you must
 
 ### createReaction
 
-#### API: createReaction(def: () => (void | (nonReactiveFollowup: () => void))): function stop(): void
+#### API: createReaction(def: () => (void | (nonReactiveFollowup: () => void))): stop(): void
 
-If you want to "push" values from an createView into something else as they update, you can use `createReaction` to do so.
+If you want to "push" values from an createView into something else as they update, you can use a reaction to do so.
 
-`createReaction`s run immediately when reacted, and then every time any value referenced in a `createReaction` updates, `createReaction` will rerun.
+Reactions run immediately when created, and then every time any value referenced in a reaction updates, the reaction will rerun.
 
-Your `createReaction` definition may return a function, if you wish. This function will be called immediately after the `createReaction` completes, and any `store` values referenced by this function will not trigger `createReaction` re-runs when they change.
+If your reaction callback returns a function, that function will be called immediately after the reaction completes, and any stores or materializations referenced by this function will not trigger re-runs when they change.
 
-Creating a `createReaction` returns a `stop()` function, which can be called to stop the createReaction from running.
-
-## Logging
-
-r2v logs everything in [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en), if available.
+Creating a reaction returns a `stop()` function, which will prevent the reaction from rerunning.
 
 ## gotchas
 
-### dereferencing `createStore` or `createMaterialization` fields outside of `createView`s or `createReaction`s
+### referencing stores or materializations outside of views and reactions
 
-This is mentioned above, but worth repeating: if you pull fields off of an `store` _outside_ of an `createView` or `createReaction`, and then use those fields _inside_ an `createView` or `createReaction`, the `createView/createReaction` *will not update* when those fields change on the `store` object. You should *only* dereference fields you want to "listen" to *inside* of `createView`s or `createReaction`s.
+This is mentioned above, but worth repeating: if you pull fields off of a store or call a materialization function _outside_ of a view or reaction, and then use those fields _inside_ a view or reaction, the view/reaction *will not update* when those fields change. You should *only* pull values from stores/materializations *inside* of views and reactions.

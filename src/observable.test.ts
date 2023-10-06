@@ -191,7 +191,14 @@ test("nested field updates", () => {
   });
   actionRunner.runInAction(() => {
     store.a.b++;
+    store.a.b++;
   });
   expect(bRan).toBe(2);
   expect(cRan).toBe(1);
+  expect(store.a.b).toBe(3);
+  expect(store.a.c).toBe(2);
+  store.a.b++;
+  store.a.b++;
+  expect(bRan).toBe(4);
+  expect(store.a.b).toBe(5);
 });

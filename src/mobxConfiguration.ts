@@ -1,9 +1,7 @@
 import { configure } from "mobx";
 
-type MobxConfig = Parameters<typeof configure>[0];
-
-const defaultConfig: MobxConfig = {
-  enforceActions: "always", // so we can always track what happens in redux devtools
+configure({
+  enforceActions: "never", // we're flexible
 
   // these restrictions _may_ help with learning, but they make everything else cumbersome
   computedRequiresReaction: false,
@@ -12,21 +10,12 @@ const defaultConfig: MobxConfig = {
   // We're not going to yell at users for unnecessarily wrapping components with `createView`
   reactionRequiresObservable: false,
 
-  // Stack traces are never worth sacrificing
-  disableErrorBoundaries: true,
+  // We lose the original error if this is on
+  disableErrorBoundaries: false,
 
-  // If a user is using custom property descriptors, probably a good idea to yell at them.
+  // If a user is using custom property descriptors, probably a good idea to yell at them
   safeDescriptors: true,
 
-  // We can reconsider this (perhaps via overrideMobxConfig, below) if necessary
+  // Prevents wonkiness if being used with other libraries that use mobx
   isolateGlobalState: true,
-};
-
-configure(defaultConfig);
-
-// export function overrideMobxConfig(params: MobxConfig) {
-//   configure({
-//     ...defaultConfig,
-//     ...params,
-//   });
-// }
+});

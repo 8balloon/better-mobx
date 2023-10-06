@@ -38,12 +38,6 @@ export function addValueSettersWhereNoExist<T extends StoreModuleShape>(
     }
   });
 
-  // somehow I couldn't figure the type logic of this out from any of these:
-  // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html
-  // https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#key-remapping-via-as
-  // https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#inferring-within-conditional-types
-  // ...so relying on type-fest!
-  // TODO?: inline type-fest logic to improve type hints
   return obj as Merge<
     {
       [Key in keyof T as T[Key] extends (...args: any[]) => any

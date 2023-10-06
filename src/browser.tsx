@@ -46,10 +46,11 @@ const InternalComponentTest = createView(() => {
 
 const MyComponent = createView(() => {
   console.log("Outer is rendering.");
+  const { a } = store1;
   return (
     <div>
       Hello
-      <div onClick={() => store1.setA(store1.a + 1)}>{store1.a}</div>
+      <div onClick={() => store1.setA(a + 1)}>{store1.a}</div>
       <div onClick={() => store2.setB(store2.b + 2)}>{store2.b}</div>
       <div onClick={() => store2.double()}>double: {store2.doubleB()}</div>
       <div onClick={() => store2.quadruple()}>quadruple</div>

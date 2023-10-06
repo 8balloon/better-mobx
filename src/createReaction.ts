@@ -1,8 +1,8 @@
-import { reaction as mobxcreateReaction } from "mobx";
+import { reaction as mobxCreateReaction } from "mobx";
 
 export function createReaction(def: () => (() => void) | void) {
   let andThen = () => {};
-  const dispose = mobxcreateReaction(
+  const dispose = mobxCreateReaction(
     () => {
       andThen = def() || (() => {});
     },
@@ -10,9 +10,5 @@ export function createReaction(def: () => (() => void) | void) {
     { fireImmediately: true }
   );
 
-  return {
-    stop() {
-      dispose();
-    },
-  };
+  return () => dispose();
 }
