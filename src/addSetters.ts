@@ -1,18 +1,18 @@
 import { Merge } from "type-fest";
 import { asRecord } from "./asRecord";
-import { StateModuleShape } from "./types";
+import { StoreModuleShape } from "./types";
 
 function getSetterName(fieldName: string) {
   return "set" + fieldName.slice(0, 1).toUpperCase() + fieldName.slice(1);
 }
-function hasGetterButNoSetter(key: string, observableBase: StateModuleShape) {
+function hasGetterButNoSetter(key: string, observableBase: StoreModuleShape) {
   const { get, set } =
     Object.getOwnPropertyDescriptor(observableBase, key) || {};
   return get instanceof Function && set === undefined;
 }
 
 // mutates in-place
-export function addValueSettersWhereNoExist<T extends StateModuleShape>(
+export function addValueSettersWhereNoExist<T extends StoreModuleShape>(
   obj: T
 ) {
   Object.keys(obj).forEach((key) => {

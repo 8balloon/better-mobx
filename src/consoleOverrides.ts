@@ -6,7 +6,7 @@ const substringsThatTriggerNoopLog = [
 const actionMessageToOverride =
   "Since strict-mode is enabled, changing (observed) observable values without using an action is not allowed";
 const actionMessageOverride =
-  "Mutating state outside of a method is not allowed";
+  "Mutating store outside of a method is not allowed";
 
 const { warn: originalWarn } = console;
 

@@ -12,7 +12,7 @@
     "noUnusedLocals": true /* Report errors on unused locals. */,
     "noUnusedParameters": true /* Report errors on unused parameters. */,
     "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
-    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
+    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch storement. */,
     "importHelpers": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,21 +20,9 @@
     "experimentalDecorators": true,
     "sourceMap": true,
     "outDir": "./dist/tsc/",
-    "types": [
-      "node",
-      "jest"
-    ],
-    "lib": [
-      "ES6",
-      "DOM"
-    ]
+    "types": ["node", "jest"],
+    "lib": ["ES6", "DOM"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.test.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

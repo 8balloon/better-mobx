@@ -1,8 +1,8 @@
-import { reaction as mobxReaction } from "mobx";
+import { reaction as mobxcreateReaction } from "mobx";
 
-export function Reaction(def: () => (() => void) | void) {
+export function createReaction(def: () => (() => void) | void) {
   let andThen = () => {};
-  const dispose = mobxReaction(
+  const dispose = mobxcreateReaction(
     () => {
       andThen = def() || (() => {});
     },
@@ -11,7 +11,7 @@ export function Reaction(def: () => (() => void) | void) {
   );
 
   return {
-    end() {
+    stop() {
       dispose();
     },
   };

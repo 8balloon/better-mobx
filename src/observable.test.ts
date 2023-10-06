@@ -1,12 +1,12 @@
-import { State, Reaction } from "./main";
+import { createStore, createReaction } from "./main";
 
-const actionRunner = State("actionRunner", {
+const actionRunner = createStore({
   runInAction(cb: (...args: any[]) => any) {
     cb();
   },
 });
 
-// const x = State("x", {
+// const x = createStore({
 //   a: 2,
 //   // setA(v: string) {
 //   //   console.log({ v });
@@ -15,41 +15,41 @@ const actionRunner = State("actionRunner", {
 // x.setA("asdf");
 // x.setA(2);
 
-test("State + Reaction + Materialization + Materialization referencing Materialization", () => {
+test("createStore + createReaction + createMaterialization + createMaterialization referencing createMaterialization", () => {
   let doubleVCalculated = 0;
   let octupleVCalculated = 0;
-  const state = State("myObs", {
+  const store = createStore({
     v: 2,
     updateV(newValue: number) {
-      state.v = newValue;
+      store.v = newValue;
     },
     doubleV: () => {
       doubleVCalculated++;
-      return state.v * 2;
+      return store.v * 2;
     },
     octupleV() {
       octupleVCalculated++;
-      return state.doubleV() * 4;
+      return store.doubleV() * 4;
     },
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(state.doubleV());
-    return state.doubleV();
+    expect(store.v * 2).toEqual(store.doubleV());
+    return store.doubleV();
   });
-  Reaction(() => {
+  createReaction(() => {
     doubleVRunner();
   });
 
   const octupleVRunner = jest.fn(() => {
-    expect(state.v * 8).toEqual(state.octupleV());
-    return state.octupleV();
+    expect(store.v * 8).toEqual(store.octupleV());
+    return store.octupleV();
   });
-  Reaction(() => {
+  createReaction(() => {
     octupleVRunner();
   });
 
-  state.updateV(3);
+  store.updateV(3);
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2);
   expect(doubleVRunner).toHaveReturnedWith(4);
@@ -63,7 +63,7 @@ test("State + Reaction + Materialization + Materialization referencing Materiali
 });
 
 test("auto-generated setters", () => {
-  const myObs = State("withSettersObs", {
+  const myObs = createStore({
     a: 2,
   });
   expect(myObs.a).toBe(2);
@@ -73,7 +73,7 @@ test("auto-generated setters", () => {
 });
 
 test("custom setters are respected", () => {
-  const myObs = State("withCustomSetter", {
+  const myObs = createStore({
     a: 2,
     setA(v: number) {
       myObs.a = v * 2;
@@ -85,7 +85,7 @@ test("custom setters are respected", () => {
 });
 
 test("setters are not generated for custom setters", () => {
-  const myObs = State("withCustomSetter2", {
+  const myObs = createStore({
     a: 2,
     setA(v: number) {
       myObs.a = v * 2;
@@ -96,84 +96,84 @@ test("setters are not generated for custom setters", () => {
 
 test("runInAction", () => {
   let doubleVCalled = 0;
-  const state = State("runInAction test obs", {
+  const store = createStore({
     v: 2,
     updateV(newValue: number) {
-      state.v = newValue;
+      store.v = newValue;
     },
     doubleV: () => {
       doubleVCalled++;
-      return state.v * 2;
+      return store.v * 2;
     },
   });
 
   const doubleVRunner = jest.fn(() => {
-    expect(state.v * 2).toEqual(state.doubleV());
-    return state.doubleV(); // calling doubleV
+    expect(store.v * 2).toEqual(store.doubleV());
+    return store.doubleV(); // calling doubleV
   });
-  Reaction(() => {
+  createReaction(() => {
     doubleVRunner();
   });
 
   actionRunner.runInAction(() => {
-    state.setV(3);
-    state.setV(4);
-    state.setV(5);
+    store.setV(3);
+    store.setV(4);
+    store.setV(5);
   });
 
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
-  expect(state.doubleV()).toEqual(10);
+  expect(store.doubleV()).toEqual(10);
   expect(doubleVRunner).toHaveBeenCalledTimes(2); // initial, and then after action
   expect(doubleVCalled).toEqual(2);
   // problem: being called outside reactive context -> recomputes, because asComptuedFunction is not used.
 });
 
 test("`this` pattern works", () => {
-  const state = State("thisPatternObs", {
+  const store = createStore({
     c: 2,
     doubleC() {
-      return state.c * 2;
+      return store.c * 2;
     },
   });
-  expect(state.doubleC()).toEqual(4);
+  expect(store.doubleC()).toEqual(4);
 });
 test("self-reference pattern works", () => {
-  const state = State("selfRefPatternObs", {
+  const store = createStore({
     c: 2,
     doubleC() {
-      return state.c * 2;
+      return store.c * 2;
     },
   });
-  expect(state.doubleC()).toEqual(4);
+  expect(store.doubleC()).toEqual(4);
 });
 
 test("box pattern", () => {
   // // inherently broken
-  // const state = State("boxState", {
+  // const store = createStore({
   //   _z: (() => 123) as () => number,
   //   get z() {
-  //     return state._z();
+  //     return store._z();
   //   },
   //   set z(v: number) {
-  //     state._z = () => v;
+  //     store._z = () => v;
   //   },
   // });
-  const state = State("boxState", {
+  const store = createStore({
     _z: (() => 123) as () => number,
     z() {
-      return state._z();
+      return store._z();
     },
     setZ(v: number) {
-      state._z = () => v;
+      store._z = () => v;
     },
   });
-  expect(state.z()).toEqual(123);
-  state.setZ(321);
-  expect(state.z()).toEqual(321);
+  expect(store.z()).toEqual(123);
+  store.setZ(321);
+  expect(store.z()).toEqual(321);
 });
 
 test("nested field updates", () => {
-  const state = State({
+  const store = createStore({
     a: {
       b: 1,
       c: 2,
@@ -181,16 +181,16 @@ test("nested field updates", () => {
   });
   let bRan = 0;
   let cRan = 0;
-  Reaction(() => {
-    state.a.b;
+  createReaction(() => {
+    store.a.b;
     bRan++;
   });
-  Reaction(() => {
-    state.a.c;
+  createReaction(() => {
+    store.a.c;
     cRan++;
   });
   actionRunner.runInAction(() => {
-    state.a.b++;
+    store.a.b++;
   });
   expect(bRan).toBe(2);
   expect(cRan).toBe(1);

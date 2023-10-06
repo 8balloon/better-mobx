@@ -1,62 +1,62 @@
 import React from "react";
-import { State, Reaction, View } from "./main";
+import { createStore, createReaction, createView } from "./main";
 import { render } from "react-dom";
 
-const state1 = State("state1", {
+const store1 = createStore({
   a: 2,
   breakerEnabled: false as boolean,
   break() {
     throw new Error("Yolo!");
   },
 });
-const state2 = State("state2", {
+const store2 = createStore({
   b: 3,
   c: 4,
   double() {
-    state2.b = state2.b * 2;
+    store2.b = store2.b * 2;
   },
   quadruple() {
-    state2.double();
-    state2.double();
+    store2.double();
+    store2.double();
   },
   doubleB() {
-    return state2.b * 2;
+    return store2.b * 2;
   },
 });
 
-const anonState = State({
+const anonStore = createStore({
   d: 5,
 });
 
-Reaction(() => {
-  console.log("a/b:", state1.a, state2.b);
+createReaction(() => {
+  console.log("a/b:", store1.a, store2.b);
 });
 
-state1.setA(123);
-state2.setB(456);
+store1.setA(123);
+store2.setB(456);
 
-const InternalComponentTest = View(() => {
+const InternalComponentTest = createView(() => {
   console.log("internal is rendering...");
   return (
-    <div onClick={() => anonState.setD(anonState.d + 1)}>
-      Hello from internal component. {anonState.d}
+    <div onClick={() => anonStore.setD(anonStore.d + 1)}>
+      Hello from internal component. {anonStore.d}
     </div>
   );
 });
 
-const MyComponent = View(() => {
+const MyComponent = createView(() => {
   console.log("Outer is rendering.");
   return (
     <div>
       Hello
-      <div onClick={() => state1.setA(state1.a + 1)}>{state1.a}</div>
-      <div onClick={() => state2.setB(state2.b + 2)}>{state2.b}</div>
-      <div onClick={() => state2.double()}>double: {state2.doubleB()}</div>
-      <div onClick={() => state2.quadruple()}>quadruple</div>
+      <div onClick={() => store1.setA(store1.a + 1)}>{store1.a}</div>
+      <div onClick={() => store2.setB(store2.b + 2)}>{store2.b}</div>
+      <div onClick={() => store2.double()}>double: {store2.doubleB()}</div>
+      <div onClick={() => store2.quadruple()}>quadruple</div>
       <InternalComponentTest />
-      <div onClick={() => state1.a++}>Complainer...</div>
-      <div onClick={() => state1.setBreakerEnabled(true)}>Breaker...</div>
-      {state1.breakerEnabled && state1.break()}
+      <div onClick={() => store1.a++}>Complainer...</div>
+      <div onClick={() => store1.setBreakerEnabled(true)}>Breaker...</div>
+      {store1.breakerEnabled && store1.break()}
     </div>
   );
 });

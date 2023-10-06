@@ -4,7 +4,7 @@ import "./consoleOverrides";
 // import second so configuration logic executes before framework logic
 import "./mobxConfiguration";
 
-export { View } from "./View";
-export { State } from "./State";
-export { Materialization } from "./Materialization";
-export { Reaction } from "./Reaction";
+export { createView } from "./createView";
+export { createStore } from "./createStore";
+export { createMaterialization } from "./createMaterialization";
+export { createReaction } from "./createReaction";

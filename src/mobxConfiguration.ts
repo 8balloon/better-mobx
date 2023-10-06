@@ -9,7 +9,7 @@ const defaultConfig: MobxConfig = {
   computedRequiresReaction: false,
   observableRequiresReaction: false,
 
-  // We're not going to yell at users for unnecessarily wrapping components with `View`
+  // We're not going to yell at users for unnecessarily wrapping components with `createView`
   reactionRequiresObservable: false,
 
   // Stack traces are never worth sacrificing

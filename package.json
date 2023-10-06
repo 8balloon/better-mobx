@@ -1,14 +1,14 @@
 {
   "name": "r2v",
   "version": "0.6.4",
-  "description": "typesafe Vue-like React state management",
+  "description": "typesafe Vue-like React store management",
   "author": "Ethan Gregory Clark <ethangclark@gmail.com>",
   "repository": "https://github.com/8balloon/r2v",
   "license": "MIT",
   "keywords": [
     "react",
     "vue",
-    "state",
+    "store",
     "typescript",
     "materialize",
     "reactive"
@@ -52,7 +52,6 @@
     "mobx": "^6.3.10",
     "mobx-react-lite": "^3.2.2",
     "mobx-utils": "^6.0.4",
-    "redux": "^4.1.2",
     "type-fest": "^2.8.0"
   }
 }
