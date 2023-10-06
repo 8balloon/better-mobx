@@ -1,12 +1,12 @@
-import { addValueSettersWhereNoExist } from "./addSetters";
+import { addValueSettersWhereNoExist } from './addSetters';
 
-describe("addValueSettersWhereNoExist", () => {
-  it("adds setter where it does not exist", () => {
+describe('addValueSettersWhereNoExist', () => {
+  it('adds setter where it does not exist', () => {
     const o = { a: 2 };
     const withSetters = addValueSettersWhereNoExist(o);
     expect(withSetters.setA).toBeInstanceOf(Function);
   });
-  it("respects original setter", () => {
+  it('respects original setter', () => {
     const o = {
       a: 2,
       setA(v: number) {
@@ -19,7 +19,7 @@ describe("addValueSettersWhereNoExist", () => {
     o.setA(2);
     expect(o.a).toBe(4);
   });
-  it("does not define a setter for a custom setter", () => {
+  it('does not define a setter for a custom setter', () => {
     const o = {
       a: 2,
       setA(v: number) {
@@ -27,7 +27,7 @@ describe("addValueSettersWhereNoExist", () => {
       },
     };
     const withSetters = addValueSettersWhereNoExist(o);
-    //@ts-expect-error
+    //@ts-expect-error - intentionally testing for this
     expect(withSetters.setSetA).toBeUndefined();
   });
   it("defines a setter that throws errors for accessor property with no 'set' func", () => {
@@ -40,7 +40,7 @@ describe("addValueSettersWhereNoExist", () => {
     const withSetters = addValueSettersWhereNoExist(o);
     expect(() => withSetters.setDoubleA(12321)).toThrow();
   });
-  it("respects custom setter for property with get() func defined", () => {
+  it('respects custom setter for property with get() func defined', () => {
     const o = {
       a: 2,
       get doubleA() {

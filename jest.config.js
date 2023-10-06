@@ -1,11 +1,21 @@
-module.exports = {
-  roots: ["<rootDir>/src"],
-  testMatch: [
-    "**/__tests__/**/*.+(ts|tsx|js)",
-    "**/?(*.)+(spec|test).+(ts|tsx|js)",
-  ],
+// @ts-check
+/* eslint-env node */
+
+/**
+ * An object with Jest options.
+ * @type {import('ts-jest').JestConfigWithTsJest}
+ */
+const options = {
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+        useESM: true,
+      },
+    ],
   },
-  setupFilesAfterEnv: ["./jest.setup.js"],
+  resolver: 'ts-jest-resolver',
 };
+
+module.exports = options;

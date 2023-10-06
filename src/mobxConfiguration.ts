@@ -1,7 +1,7 @@
-import { configure } from "mobx";
+import { configure } from 'mobx';
 
 configure({
-  enforceActions: "never", // we're flexible
+  enforceActions: 'never', // we're flexible
 
   // these restrictions _may_ help with learning, but they make everything else cumbersome
   computedRequiresReaction: false,

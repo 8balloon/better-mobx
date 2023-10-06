@@ -1,7 +1,7 @@
-import { createStore, createReaction } from "./main";
+import { createStore, createReaction } from './index';
 
 const actionRunner = createStore({
-  runInAction(cb: (...args: any[]) => any) {
+  runInAction(cb: (...args: unknown[]) => unknown) {
     cb();
   },
 });
@@ -15,7 +15,7 @@ const actionRunner = createStore({
 // x.setA("asdf");
 // x.setA(2);
 
-test("createStore + createReaction + createMaterialization + createMaterialization referencing createMaterialization", () => {
+test('createStore + createReaction + createMaterialization + createMaterialization referencing createMaterialization', () => {
   let doubleVCalculated = 0;
   let octupleVCalculated = 0;
   const store = createStore({
@@ -62,17 +62,17 @@ test("createStore + createReaction + createMaterialization + createMaterializati
   expect(octupleVCalculated).toEqual(2);
 });
 
-test("auto-generated setters", () => {
+test('auto-generated setters', () => {
   const myObs = createStore({
     a: 2,
   });
   expect(myObs.a).toBe(2);
-  expect(typeof myObs.setA).toBe("function");
+  expect(typeof myObs.setA).toBe('function');
   myObs.setA(3);
   expect(myObs.a).toBe(3);
 });
 
-test("custom setters are respected", () => {
+test('custom setters are respected', () => {
   const myObs = createStore({
     a: 2,
     setA(v: number) {
@@ -84,17 +84,18 @@ test("custom setters are respected", () => {
   expect(myObs.a).toEqual(4);
 });
 
-test("setters are not generated for custom setters", () => {
+test('setters are not generated for custom setters', () => {
   const myObs = createStore({
     a: 2,
     setA(v: number) {
       myObs.a = v * 2;
     },
   });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expect((myObs as any).setSetA).toBeUndefined();
 });
 
-test("runInAction", () => {
+test('runInAction', () => {
   let doubleVCalled = 0;
   const store = createStore({
     v: 2,
@@ -128,7 +129,7 @@ test("runInAction", () => {
   // problem: being called outside reactive context -> recomputes, because asComptuedFunction is not used.
 });
 
-test("`this` pattern works", () => {
+test('`this` pattern works', () => {
   const store = createStore({
     c: 2,
     doubleC() {
@@ -137,7 +138,7 @@ test("`this` pattern works", () => {
   });
   expect(store.doubleC()).toEqual(4);
 });
-test("self-reference pattern works", () => {
+test('self-reference pattern works', () => {
   const store = createStore({
     c: 2,
     doubleC() {
@@ -147,7 +148,7 @@ test("self-reference pattern works", () => {
   expect(store.doubleC()).toEqual(4);
 });
 
-test("box pattern", () => {
+test('box pattern', () => {
   // // inherently broken
   // const store = createStore({
   //   _z: (() => 123) as () => number,
@@ -172,7 +173,7 @@ test("box pattern", () => {
   expect(store.z()).toEqual(321);
 });
 
-test("nested field updates", () => {
+test('nested field updates', () => {
   const store = createStore({
     a: {
       b: 1,

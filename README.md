@@ -1,8 +1,5 @@
 # r2v
 
-TODO:
-Make everything useMemo
-
 ## Vue for React
 
 r2v is a Vue-like global state management solution for React.

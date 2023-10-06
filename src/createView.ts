@@ -1,7 +1,8 @@
-import { observer as mobxReactLiteObserver } from "mobx-react-lite";
+import { observer as mobxReactLiteObserver } from 'mobx-react-lite';
+import { memo as reactMemo } from 'react';
 
 export function createView(
   ...params: Parameters<typeof mobxReactLiteObserver>
 ) {
-  return mobxReactLiteObserver(...params);
+  return reactMemo(mobxReactLiteObserver(...params));
 }

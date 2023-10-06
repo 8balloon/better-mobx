@@ -1,12 +1,12 @@
-import React from "react";
-import { createStore, createReaction, createView } from "./main";
-import { render } from "react-dom";
+import React from 'react';
+import { createStore, createReaction, createView } from './index';
+import { render } from 'react-dom';
 
 const store1 = createStore({
   a: 2,
   breakerEnabled: false as boolean,
   break() {
-    throw new Error("Yolo!");
+    throw new Error('Yolo!');
   },
 });
 const store2 = createStore({
@@ -29,14 +29,14 @@ const anonStore = createStore({
 });
 
 createReaction(() => {
-  console.log("a/b:", store1.a, store2.b);
+  console.log('a/b:', store1.a, store2.b);
 });
 
 store1.setA(123);
 store2.setB(456);
 
 const InternalComponentTest = createView(() => {
-  console.log("internal is rendering...");
+  console.log('internal is rendering...');
   return (
     <div onClick={() => anonStore.setD(anonStore.d + 1)}>
       Hello from internal component. {anonStore.d}
@@ -45,7 +45,7 @@ const InternalComponentTest = createView(() => {
 });
 
 const MyComponent = createView(() => {
-  console.log("Outer is rendering.");
+  console.log('Outer is rendering.');
   const { a } = store1;
   return (
     <div>
@@ -63,7 +63,7 @@ const MyComponent = createView(() => {
 });
 
 window.onload = () => {
-  render(<MyComponent />, document.getElementById("root"));
+  render(<MyComponent />, document.getElementById('root'));
 };
 
 // // eslint-disable-next-line @typescript-eslint/no-explicit-any

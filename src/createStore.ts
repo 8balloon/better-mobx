@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   observable as mobxObservable,
   runInAction as mobxRunInAction,
   _isComputingDerivation as mobxIsComputingDerivation,
   makeObservable as mobxMakeObservable,
-} from "mobx";
-import { StoreModuleShape } from "./types";
-import { addValueSettersWhereNoExist } from "./addSetters";
-import { createMaterialization } from "./createMaterialization";
+} from 'mobx';
+import { type StoreModuleShape } from './types';
+import { addValueSettersWhereNoExist } from './addSetters';
+import { createMaterialization } from './createMaterialization';
 
 export function createStore<T extends StoreModuleShape>(observableBase: T) {
   const hasHadSettersAdded = addValueSettersWhereNoExist(observableBase); // mutates in-place
@@ -40,7 +41,7 @@ export function createStore<T extends StoreModuleShape>(observableBase: T) {
 
   const hasBeenMadeObservable = mobxMakeObservable(
     hasHadSettersAdded,
-    annotations
+    annotations,
   ); // mutates in-place
   return hasBeenMadeObservable;
 }

@@ -1,4 +1,4 @@
-import { reaction as mobxCreateReaction } from "mobx";
+import { reaction as mobxCreateReaction } from 'mobx';
 
 export function createReaction(def: () => (() => void) | void) {
   let andThen = () => {};
@@ -7,7 +7,7 @@ export function createReaction(def: () => (() => void) | void) {
       andThen = def() || (() => {});
     },
     () => andThen(),
-    { fireImmediately: true }
+    { fireImmediately: true },
   );
 
   return () => dispose();

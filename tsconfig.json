@@ -1,28 +1,36 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    // React.js JSX settings.
     "jsx": "react",
-    "declaration": true,
-    "strict": true,
-    "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
-    "strictNullChecks": true /* Enable strict null checks. */,
-    "strictFunctionTypes": true /* Enable strict checking of function types. */,
-    "noUnusedLocals": true /* Report errors on unused locals. */,
-    "noUnusedParameters": true /* Report errors on unused parameters. */,
-    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
-    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch storement. */,
-    "importHelpers": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+    "jsxFactory": "React.createElement",
+    "jsxFragmentFactory": "React.Fragment",
+
+    // Module settings.
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "sourceMap": true,
-    "outDir": "./dist/tsc/",
-    "types": ["node", "jest"],
-    "lib": ["ES6", "DOM"]
+    "esModuleInterop": true,
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+
+    // Strictness and quality settings.
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    // "verbatimModuleSyntax": true,
+
+    // Type-checking settings.
+    "lib": ["ES2020", "DOM"],
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "types": ["node", "jest"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }

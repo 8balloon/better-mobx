@@ -1,4 +1,4 @@
-import { computedFn as mobxComputedFn } from "mobx-utils";
+import { computedFn as mobxComputedFn } from 'mobx-utils';
 
 export function createMaterialization(
   ...params: Parameters<typeof mobxComputedFn>
