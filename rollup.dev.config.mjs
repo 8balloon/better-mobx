@@ -14,6 +14,7 @@ const options = {
     file: './dist/browser.umd.js', // Destination of the bundled output
     format: 'iife', // Suitable for inclusion via a <script> tag in a browser
     name: 'MyBundle', // If using iife, this will be the global variable name representing your bundle
+    sourcemap: true,
   },
   plugins: [
     typescript2({
