@@ -6,5 +6,4 @@ import './mobxConfiguration';
 
 export { createView } from './createView';
 export { createStore } from './createStore';
-export { createMaterialization } from './createMaterialization';
 export { createReaction } from './createReaction';

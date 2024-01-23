@@ -1,8 +1,12 @@
 import { observer as mobxReactLiteObserver } from 'mobx-react-lite';
-import { memo as reactMemo } from 'react';
+import { MemoExoticComponent, memo as reactMemo } from 'react';
 
-export function createView(
-  ...params: Parameters<typeof mobxReactLiteObserver>
-) {
-  return reactMemo(mobxReactLiteObserver(...params));
+export function createView<
+  ComponentType extends
+    | React.FunctionComponent<any>
+    | React.ForwardRefRenderFunction<any, any>,
+>(
+  Component: ComponentType,
+): MemoExoticComponent<ComponentType & { displayName: string }> {
+  return reactMemo(mobxReactLiteObserver(Component));
 }
