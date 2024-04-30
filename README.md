@@ -2,13 +2,13 @@
 
 ## Vue for React
 
-r2v is a Vue-like global state management solution for React.
+r2v is a Vue-like state management library for React.
 
 The idea is that when you change a value in a store object, views that use that value update. (Sounds simple, right?)
 
 ### Example
 
-When the button is clicked, the count will update automatically, even though it lives in a separate component. No hooks, props, or context are required:
+When the button is clicked, the count displayed updates. No hooks, props, or context are required:
 ```tsx
 import { createStore, createView } from 'r2v'
 
@@ -17,10 +17,10 @@ const store = createStore({
   count: 0,
 
   // these methods the same thing
-  incrementV1() {
+  incrementExample1() {
     store.count++
   },
-  incrementV2() {
+  incrementExample2() {
     // the `setCount` method is generated automatically, and is type-safe
     store.setCount(store.count + 1)
   },
@@ -31,8 +31,8 @@ const IncrementButton = createView(() => (
     onClick={() => {
       // these all do the same thing
       store.setCount(store.count + 1)
-      store.incrementV1()
-      store.incrementV2()
+      store.incrementExample1()
+      store.incrementExample2()
       store.count++
     }}
   >count is {store.count}. click to increment by 4
@@ -40,7 +40,7 @@ const IncrementButton = createView(() => (
 )
 ```
 
-There is one main "trick" behind r2v. It's that you must only reference store values from within views and reactions if you want those views and reactions to update appropriately. So, this will work:
+There is one main "trick" behind r2v: you must pull values out of stores from *within* views and reactions if you want them to update appropriately. So, this will work:
 ```tsx
 const ClickCounter = createView(() => (
   <div onClick={() => clickStore.setClicks(clickCounts.clicks + 1)}>{clickStore.clicks}</div>
@@ -54,21 +54,25 @@ const ClickCounter = createView(() => (
 ))
 ```
 
-This is only relevant when you're referencing a value in a context that you need to automatically "refresh" when appropriate (like a view or a reaction) -- otherwise it's a non-issue; store values are always "correct" at the point in time that they are referenced.
+(this only matters when you need a value to stay "up-to-date" (like in a view or reaction) -- otherwise this is a non-issue; store values are always "correct" at the point in time that they are referenced.
 
-[Mobx has a great breakdown of this idea](https://mobx.js.org/understanding-reactivity.html) if you are interested.
+[Mobx has a great breakdown of this idea](https://mobx.js.org/understanding-reactivity.html).
 
 ## Core API
 
 ### createView
 
-A React function component wrapped in `createView()` will update whenever any store field (or subfield) it references *while rendering* updates. (So remember: fields referenced in effects or callbacks will not trigger updates.)
+A React function component wrapped in `createView()` will update whenever any store field (or subfield!) it references *while rendering* updates.
 
-It is highly recommended that you wrap all of your applications' custom components in `createView`, including the root component. Wrapping the root component will ensure that the UI always updates when store changes, even if you forget to wrap your other components in `createView`. However, performance will be better if you wrap each custom component in `createView` -- if you don't, they will rerender when their nearest parent `createView` component updates, which is less efficient.
+(You can also use props and hooks like you usually do -- they work normally.)
+
+The magic here is that the view will only update if the specific fields + subfields it reads from update. This makes views very performant.
+
+It is recommended that you wrap all of your applications' custom components in `createView`, including the root component.
 
 ### createStore
 
-Stores are objects for storing and updating application store. They work like this:
+Stores are for storing and updating application state. They work like this:
 
 ```tsx
 const store = createStore({
@@ -108,7 +112,7 @@ export const UserTable = createView(() => (
 
 #### Methods
 
-Methods can set values or return values. You can define whatever methods you want, and they should work as you expect.
+Methods can set values in the store or return values. You can define whatever methods you want, and they should work as you expect.
 
 Setter methods are automatically generated for all non-function fields.
 
@@ -126,6 +130,8 @@ const store = createStore({
   setX: null,
 })
 ```
+
+These auto-generated hooks are all typed as you would expect.
 
 #### Getter methods
 
